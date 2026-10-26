@@ -1,0 +1,58 @@
+name: ${STACK2GRAPH_POSTGRES_COMPOSE_PROJECT:-stack2graph-postgres}
+services:
+  postgres:
+    container_name: ${STACK2GRAPH_POSTGRES_CONTAINER_NAME:-${STACK2GRAPH_POSTGRES_COMPOSE_PROJECT:-stack2graph-postgres}-postgres-1}
+    image: ${STACK2GRAPH_POSTGRES_IMAGE:-postgres:alpine}
+    user: "${STACK2GRAPH_POSTGRES_UID:?Use deployment/postgres/run.sh}:${STACK2GRAPH_POSTGRES_GID:?Use deployment/postgres/run.sh}"
+    entrypoint: ["/bin/sh", "/opt/stack2graph/postgres-entrypoint.sh"]
+    environment:
+      POSTGRES_USER: ${STACK2GRAPH_POSTGRES_USER:?Set PostgreSQL user in local configuration}
+      POSTGRES_DB: ${STACK2GRAPH_POSTGRES_DATABASE:?Set PostgreSQL database in local configuration}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust
+      STACK2GRAPH_POSTGRES_MAX_CONNECTIONS: ${STACK2GRAPH_POSTGRES_MAX_CONNECTIONS:-}
+      STACK2GRAPH_POSTGRES_SHARED_BUFFERS: ${STACK2GRAPH_POSTGRES_SHARED_BUFFERS:-}
+      STACK2GRAPH_POSTGRES_MAINTENANCE_MEMORY: ${STACK2GRAPH_POSTGRES_MAINTENANCE_MEMORY:-}
+      STACK2GRAPH_POSTGRES_WORK_MEMORY: ${STACK2GRAPH_POSTGRES_WORK_MEMORY:-}
+      STACK2GRAPH_POSTGRES_MAX_WAL_SIZE: ${STACK2GRAPH_POSTGRES_MAX_WAL_SIZE:-}
+      STACK2GRAPH_POSTGRES_TEMP_FILE_LIMIT: ${STACK2GRAPH_POSTGRES_TEMP_FILE_LIMIT:-}
+    secrets:
+      - postgres_password
+    ports:
+      - "${STACK2GRAPH_POSTGRES_BIND_ADDRESS:-127.0.0.1}:${STACK2GRAPH_POSTGRES_PORT:?Set PostgreSQL host port}:5432"
+    volumes:
+      - type: bind
+        source: ${STACK2GRAPH_DATA_POSTGRES_PATH:?Set PostgreSQL physical root}/cluster
+        target: /var/lib/postgresql
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./entrypoint.sh
+        target: /opt/stack2graph/postgres-entrypoint.sh
+        read_only: true
+      - type: bind
+        source: ./healthcheck.sh
+        target: /opt/stack2graph/postgres-healthcheck.sh
+        read_only: true
+    tmpfs:
+      - "/var/run/postgresql:uid=${STACK2GRAPH_POSTGRES_UID},gid=${STACK2GRAPH_POSTGRES_GID},mode=3770"
+    shm_size: ${STACK2GRAPH_POSTGRES_SHM_SIZE:-64gb}
+    mem_limit: ${STACK2GRAPH_POSTGRES_MEMORY_LIMIT:-0}
+    cpus: ${STACK2GRAPH_POSTGRES_CPU_LIMIT:-0}
+    stop_signal: SIGINT
+    stop_grace_period: ${STACK2GRAPH_POSTGRES_STOP_GRACE:-120s}
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${STACK2GRAPH_POSTGRES_LOG_MAX_SIZE:-10m}
+        max-file: "${STACK2GRAPH_POSTGRES_LOG_MAX_FILES:-3}"
+    healthcheck:
+      test: ["CMD", "/bin/sh", "/opt/stack2graph/postgres-healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+secrets:
+  postgres_password:
+    file: ${STACK2GRAPH_POSTGRES_PASSWORD_FILE:?Set local PostgreSQL password file}

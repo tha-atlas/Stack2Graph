@@ -1,0 +1,333 @@
+{
+  "version": "1",
+  "base_tags": [
+    "java",
+    "c",
+    "c++",
+    "python",
+    "c#",
+    "javascript",
+    "assembly",
+    "php",
+    "perl",
+    "ruby",
+    "vb.net",
+    "swift",
+    "r",
+    "objective-c",
+    "go",
+    "sql",
+    "matlab",
+    "typescript",
+    "scala",
+    "kotlin",
+    "rust",
+    "lua",
+    "haskell",
+    "cobol",
+    "fortran",
+    "lisp",
+    "erlang",
+    "elixir",
+    "f#",
+    "dart",
+    "shell",
+    "bash",
+    "powershell",
+    "css",
+    "html",
+    ".net",
+    "julia",
+    "prolog",
+    "abap"
+  ],
+  "version_rules": [
+    {
+      "language": "java",
+      "pattern": "^java-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "c",
+      "pattern": "^c-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "c++",
+      "pattern": "^c\\+\\+-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "python",
+      "pattern": "^python-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "c#",
+      "pattern": "^c\\#-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "javascript",
+      "pattern": "^javascript-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "assembly",
+      "pattern": "^assembly-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "php",
+      "pattern": "^php-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "perl",
+      "pattern": "^perl-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "ruby",
+      "pattern": "^ruby-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "vb.net",
+      "pattern": "^vb\\.net-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "swift",
+      "pattern": "^swift-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "r",
+      "pattern": "^r-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "objective-c",
+      "pattern": "^objective\\-c-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "go",
+      "pattern": "^go-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "sql",
+      "pattern": "^sql-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "matlab",
+      "pattern": "^matlab-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "typescript",
+      "pattern": "^typescript-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "scala",
+      "pattern": "^scala-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "kotlin",
+      "pattern": "^kotlin-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "rust",
+      "pattern": "^rust-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "lua",
+      "pattern": "^lua-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "haskell",
+      "pattern": "^haskell-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "cobol",
+      "pattern": "^cobol-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "fortran",
+      "pattern": "^fortran-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "lisp",
+      "pattern": "^lisp-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "erlang",
+      "pattern": "^erlang-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "elixir",
+      "pattern": "^elixir-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "f#",
+      "pattern": "^f\\#-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "dart",
+      "pattern": "^dart-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "shell",
+      "pattern": "^shell-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "bash",
+      "pattern": "^bash-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "powershell",
+      "pattern": "^powershell-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "css",
+      "pattern": "^css-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "html",
+      "pattern": "^html-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": ".net",
+      "pattern": "^\\.net-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "julia",
+      "pattern": "^julia-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "prolog",
+      "pattern": "^prolog-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "abap",
+      "pattern": "^abap-[0-9]+(?:\\.(?:[0-9]+|x))*$"
+    },
+    {
+      "language": "python",
+      "pattern": "^python[0-9]+(?:\\.[0-9]+)*$"
+    },
+    {
+      "language": "c++",
+      "pattern": "^c\\+\\+[0-9]+(?:\\.[0-9]+)*$"
+    },
+    {
+      "language": "c#",
+      "pattern": "^c\\#[0-9]+(?:\\.[0-9]+)*$"
+    },
+    {
+      "language": "html",
+      "pattern": "^html[0-9]+(?:\\.[0-9]+)*$"
+    },
+    {
+      "language": "css",
+      "pattern": "^css[0-9]+(?:\\.[0-9]+)*$"
+    }
+  ],
+  "synonyms": [
+    {
+      "alias": "bash-function",
+      "language": "bash",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "box-shadow",
+      "language": "css",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "css-reset",
+      "language": "css",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "dynamic-css",
+      "language": "css",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "box-sizing",
+      "language": "css",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "dart-null-safety",
+      "language": "dart",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "html-head",
+      "language": "html",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "openjdk-11",
+      "language": "java",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "javax",
+      "language": "java",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "openjdk-17",
+      "language": "java",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "oraclejdk",
+      "language": "java",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "openjdk-8",
+      "language": "java",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "mlint",
+      "language": "matlab",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "php-include",
+      "language": "php",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "php-namespaces",
+      "language": "php",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "base-r",
+      "language": "r",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "shell-trap",
+      "language": "shell",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    },
+    {
+      "alias": "atscript",
+      "language": "typescript",
+      "approval_evidence": "User-provided SEDE export QueryResults(4).csv; approved_synonym selected by TagSynonyms.ApprovalDate IS NOT NULL",
+      "source_date": "2026-10-09"
+    }
+  ],
+  "inventory_source": "User-provided SEDE exports, 2026-10-09; actual PostgreSQL inventory audit pending"
+}

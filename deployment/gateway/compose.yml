@@ -1,0 +1,52 @@
+name: ${STACK2GRAPH_GATEWAY_COMPOSE_PROJECT:-stack2graph-gateway}
+
+services:
+  gateway:
+    container_name: ${STACK2GRAPH_GATEWAY_CONTAINER_NAME:-${STACK2GRAPH_GATEWAY_COMPOSE_PROJECT:-stack2graph-gateway}-gateway-1}
+    image: ${STACK2GRAPH_GATEWAY_IMAGE:-nginx:stable}
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      GATEWAY_SERVER_NAME: ${STACK2GRAPH_GATEWAY_SERVER_NAME:?Set the certificate DNS name}
+      GATEWAY_HTTPS_BIND: ${STACK2GRAPH_GATEWAY_HTTPS_BIND:-0.0.0.0}
+      GATEWAY_HTTPS_PORT: ${STACK2GRAPH_GATEWAY_HTTPS_PORT:-443}
+      QDRANT_PORT: ${STACK2GRAPH_GATEWAY_QDRANT_PORT:-6333}
+      QDRANT_GRPC_PORT: ${STACK2GRAPH_GATEWAY_QDRANT_GRPC_PORT:-6334}
+      QLEVER_PORT: ${STACK2GRAPH_GATEWAY_QLEVER_PORT:-7015}
+      NGINX_ENVSUBST_FILTER: ^(GATEWAY_SERVER_NAME|GATEWAY_HTTPS_BIND|GATEWAY_HTTPS_PORT|QDRANT_PORT|QDRANT_GRPC_PORT|QLEVER_PORT)$
+    volumes:
+      - type: bind
+        source: ${STACK2GRAPH_GATEWAY_CA_FILE:-/etc/ssl/certs/ca-certificates.crt}
+        target: /etc/nginx/tls/ca.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${STACK2GRAPH_GATEWAY_CERT_FILE:?Set the absolute certificate chain path}
+        target: /etc/nginx/tls/cert.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${STACK2GRAPH_GATEWAY_KEY_FILE:?Set the absolute unencrypted private key path}
+        target: /etc/nginx/tls/key.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./nginx.conf.template
+        target: /etc/nginx/templates/default.conf.template
+        read_only: true
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --show-error --cacert /etc/nginx/tls/ca.pem --noproxy '*' --resolve $${GATEWAY_SERVER_NAME}:$${GATEWAY_HTTPS_PORT}:127.0.0.1 https://$${GATEWAY_SERVER_NAME}:$${GATEWAY_HTTPS_PORT}/gateway/health >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s

@@ -1,0 +1,25 @@
+# Node settings. Collection-specific bulk ingestion belongs in the Python adapter.
+log_level: INFO
+
+storage:
+  storage_path: /qdrant/storage
+  snapshots_path: /qdrant/snapshots
+  # Temporary snapshot files stay inside the persistent storage mount.
+  temp_path: /qdrant/storage/snapshots_temp
+  performance:
+    max_search_threads: 0
+    optimizer_cpu_budget: 0
+  optimizers:
+    # null chooses optimization concurrency dynamically; 0 would disable it.
+    max_optimization_threads: null
+  hnsw_index:
+    max_indexing_threads: 0
+
+service:
+  host: 0.0.0.0
+  http_port: 6333
+  grpc_port: 6334
+  max_workers: 0
+
+cluster:
+  enabled: false

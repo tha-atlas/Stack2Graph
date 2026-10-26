@@ -1,0 +1,50 @@
+name: ${STACK2GRAPH_VECTOR_QDRANT_COMPOSE_PROJECT:-stack2graph-qdrant}
+
+services:
+  qdrant:
+    container_name: ${STACK2GRAPH_VECTOR_QDRANT_CONTAINER_NAME:-${STACK2GRAPH_VECTOR_QDRANT_COMPOSE_PROJECT:-stack2graph-qdrant}-qdrant-1}
+    image: ${STACK2GRAPH_VECTOR_QDRANT_IMAGE:-qdrant/qdrant:v1.19.2}
+    user: "${STACK2GRAPH_VECTOR_QDRANT_UID:?Use deployment/qdrant/run.sh}:${STACK2GRAPH_VECTOR_QDRANT_GID:?Use deployment/qdrant/run.sh}"
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 120s
+    environment:
+      QDRANT__SERVICE__API_KEY: ${STACK2GRAPH_VECTOR_QDRANT_API_KEY:?Set the same Qdrant API key for the server and vector pipeline}
+      QDRANT_INIT_FILE_PATH: /qdrant/storage/.qdrant-initialized
+    ports:
+      - "127.0.0.1:${STACK2GRAPH_VECTOR_QDRANT_HTTP_PORT:-6333}:6333"
+      - "127.0.0.1:${STACK2GRAPH_VECTOR_QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - type: bind
+        source: ${STACK2GRAPH_DATA_ROOT:?Set an absolute external data root}/qdrant/storage
+        target: /qdrant/storage
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${STACK2GRAPH_DATA_ROOT:?Set an absolute external data root}/qdrant/snapshots
+        target: /qdrant/snapshots
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./config.yaml
+        target: /qdrant/config/production.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./healthcheck.sh
+        target: /opt/stack2graph/qdrant-healthcheck.sh
+        read_only: true
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "/bin/bash", "/opt/stack2graph/qdrant-healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s

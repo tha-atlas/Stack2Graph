@@ -1,0 +1,154 @@
+[project]
+name = "stack2graph"
+version = "0.1.0"
+description = "Import Stack Overflow dumps into PostgreSQL and build Qdrant vector collections."
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "httpx==0.28.1",
+    "psutil==7.2.2",
+    "psycopg[binary,pool]>=3.3,<4",
+    "pyoxigraph==0.5.11",
+    "qdrant-client==1.19.1",
+    "rdflib>=7,<8",
+    "rich==15.0.0",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "accelerate==1.15.0",
+    "flagembedding==1.4.2",
+    "huggingface-hub>=1,<2",
+    "numpy>=2.5,<3",
+    "sentence-transformers==6.1.0",
+    "torch==2.14.1",
+    "transformers>=5,<6",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = ["sql", "vector", "utils", "selection", "graph", "validation"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "I",
+    "N",
+    "D",
+    "UP",
+    "YTT",
+    "ANN",
+    "B",
+    "A",
+    "COM",
+    "C4",
+    "DTZ",
+    "ISC",
+    "ICN",
+    "INP",
+    "PIE",
+    "PT",
+    "RET",
+    "SIM",
+    "TID",
+    "ARG",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "RUF",
+    "G",  # lazy logging arguments (no f-strings or .format in log calls)
+    "LOG",
+]
+ignore = [
+    "COM812",  # Ruff's formatter owns trailing commas.
+    "D100",
+    "D103",
+    "D105",
+    "D107",
+    "D101",
+    "D102",
+    "D104",
+    "D203",
+    "D202",
+    "D212",
+    "D205",
+    "UP006",
+    "UP007",
+    "D400",
+    "D401",
+    "D406",
+    "D407",
+    "D417",
+    "PLC1901",
+    "PLC0415",
+    "UP035",
+    "UP040",
+    "UP047",
+    "E501",
+    "ARG001",
+    "PLR0913",
+    "PLR0917",
+    "PLR0911",
+    "PLR0912",
+    "PLR0915",
+    "PLR2004",
+    "PLW0602",
+    "PLW0603",
+    "PLW2901",
+    "B007",
+    "B023",
+    "B905",
+    "E731",
+    "C901",
+    "INP001",
+    "N802",
+    "N806",
+    "N812",
+    "N999",
+    "RET504",
+    "RUF005",
+    "SIM105",
+]
+unfixable = ["F401", "F841"]
+
+[tool.ruff.lint.per-file-ignores]
+# Repository tests use unittest rather than pytest assertions.
+"tests/*.py" = ["PT009", "PT027"]
+
+[tool.mypy]
+mypy_path = "typings"
+python_version = "3.14"
+strict = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+disallow_any_unimported = true
+
+[tool.pyright]
+include = ["src", "tests"]
+extraPaths = ["src"]
+pythonVersion = "3.14"
+pythonPlatform = "Linux"
+venvPath = "."
+venv = ".venv"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "ruff>=0.16.10",
+    "types-grpcio>=1.84,<2",
+    "types-protobuf>=7.35,<8",
+    "types-psutil>=7.2.2.20260906",
+]

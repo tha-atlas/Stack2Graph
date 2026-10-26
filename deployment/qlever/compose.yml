@@ -1,0 +1,56 @@
+name: ${STACK2GRAPH_QLEVER_COMPOSE_PROJECT:-stack2graph-qlever}
+
+services:
+  qlever:
+    container_name: ${STACK2GRAPH_QLEVER_CONTAINER_NAME:-${STACK2GRAPH_QLEVER_COMPOSE_PROJECT:-stack2graph-qlever}-qlever-1}
+    image: ${STACK2GRAPH_QLEVER_IMAGE:?Set an immutable QLever image reference with sha256 digest}
+    user: "${STACK2GRAPH_QLEVER_UID:?Use deployment/qlever/run.sh}:${STACK2GRAPH_QLEVER_GID:?Use deployment/qlever/run.sh}"
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 120s
+    entrypoint: ["/bin/sh", "/opt/stack2graph/qlever-entrypoint.sh"]
+    environment:
+      QLEVER_IMAGE: ${STACK2GRAPH_QLEVER_IMAGE:?Set an immutable QLever image reference with sha256 digest}
+      QLEVER_PORT: ${STACK2GRAPH_QLEVER_PORT:-7015}
+      QLEVER_QUERY_RAM_BYTES: ${STACK2GRAPH_QLEVER_QUERY_RAM_BYTES:-1073741824}
+      QLEVER_TIMEOUT_SECONDS: ${STACK2GRAPH_QLEVER_TIMEOUT_SECONDS:-3600}
+    ports:
+      - "127.0.0.1:${STACK2GRAPH_QLEVER_PORT:-7015}:${STACK2GRAPH_QLEVER_PORT:-7015}"
+    volumes:
+      - type: bind
+        source: ${STACK2GRAPH_QLEVER_INDEX_ROOT:?Set an absolute external QLever index root}
+        target: /indexes
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${STACK2GRAPH_QLEVER_DEPLOYMENT_ROOT:?Set an absolute external QLever deployment root}
+        target: /deployment
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./entrypoint.sh
+        target: /opt/stack2graph/qlever-entrypoint.sh
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./healthcheck.sh
+        target: /opt/stack2graph/qlever-healthcheck.sh
+        read_only: true
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "/bin/bash", "/opt/stack2graph/qlever-healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+networks:
+  default:
+    name: ${STACK2GRAPH_QLEVER_NETWORK:-${STACK2GRAPH_QLEVER_COMPOSE_PROJECT:-stack2graph-qlever}}

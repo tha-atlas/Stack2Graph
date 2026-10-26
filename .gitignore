@@ -1,0 +1,45 @@
+# Local environments and Python artifacts
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Test and editor artifacts
+# Disposable PostgreSQL integration runs (compose config, credentials, cluster data).
+tests/.postgres-runs/
+tests/.legacy-postgres/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Large data belongs outside the repository.
+/data/
+/artifacts/
+/var_data
+*.parquet
+*.nt
+*.nq
+*.ttl
+!tests/fixtures/graph/ontology.nt
+*.7z
+
+.postgres-password*
+*/**/functions.md
+.claude/
+*/**/tests/
+
+# Keep local tests, upload tooling, and standalone assets out of this repository.
+tests/
+/src/upload/
+/assets/

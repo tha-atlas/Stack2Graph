@@ -1,0 +1,320 @@
+"""
+Define the Stack Overflow RDF/OWL ontology for question retrieval.
+
+Only ontology definitions are created: no SQL access, source records, users,
+content instances, or extraction logic. RDFLib is the sole runtime dependency.
+Pass the existing schema namespace to preserve the IRIs used by your graph.
+"""
+
+from dataclasses import dataclass
+from urllib.parse import urlsplit
+
+from rdflib import OWL, RDF, RDFS, XSD, Graph, Literal, URIRef
+
+
+@dataclass(frozen=True)
+class _Class:
+    name: str
+    label: str
+    description: str
+    parent: str | None = None
+
+
+@dataclass(frozen=True)
+class _DatatypeProperty:
+    name: str
+    label: str
+    description: str
+    domain: str
+    datatype: URIRef
+
+
+@dataclass(frozen=True)
+class _ObjectProperty:
+    name: str
+    label: str
+    description: str
+    domain: str
+    range: str
+    inverse: str | None = None
+
+
+_CLASSES: tuple[_Class, ...] = (
+    _Class("Content", "Content", "A post or comment with content, a score, dates, and a license."),
+    _Class("Post", "Post", "A Stack Overflow post, including questions, answers, and tag documentation.", "Content"),
+    _Class("Question", "Question", "A coding question.", "Post"),
+    _Class("Answer", "Answer", "An answer to a question.", "Post"),
+    _Class("Comment", "Comment", "A comment on a post.", "Content"),
+    _Class("Tag", "Tag", "A tag categorizing questions."),
+    _Class("TagWiki", "Tag Wiki", "The documentation post associated with a tag.", "Post"),
+    _Class("TagExcerpt", "Tag Excerpt", "The short description post associated with a tag.", "Post"),
+    _Class(
+        "AnsweredQuestion",
+        "Answered Question",
+        "A question with at least one answer; acceptance is not required.",
+        "Question",
+    ),
+    _Class(
+        "UnansweredQuestion",
+        "Unanswered Question",
+        "A question with zero answers; an unknown answer count does not establish this status.",
+        "Question",
+    ),
+    _Class(
+        "QuestionWithAcceptedAnswer",
+        "Question With Accepted Answer",
+        "A question with an accepted answer.",
+        "AnsweredQuestion",
+    ),
+    _Class(
+        "QuestionWithoutAcceptedAnswer",
+        "Question Without Accepted Answer",
+        "A question without an accepted answer; it may still have answers.",
+        "Question",
+    ),
+    _Class(
+        "AcceptedAnswer",
+        "Accepted Answer",
+        "An answer accepted by the question author; acceptance does not establish technical correctness.",
+        "Answer",
+    ),
+    _Class("QuestionComment", "Question Comment", "A comment on a question.", "Comment"),
+    _Class("AnswerComment", "Answer Comment", "A comment on an answer.", "Comment"),
+)
+
+_DATATYPE_PROPERTIES: tuple[_DatatypeProperty, ...] = (
+    _DatatypeProperty("hasTitle", "has title", "The plain-text title of a post.", "Post", XSD.string),
+    _DatatypeProperty("hasBody", "has body", "The original rendered HTML body of a post.", "Post", RDF.HTML),
+    _DatatypeProperty("hasText", "has text", "The text of a comment.", "Comment", XSD.string),
+    _DatatypeProperty(
+        "score",
+        "score",
+        "The source score; a popularity signal, not proof of technical correctness.",
+        "Content",
+        XSD.integer,
+    ),
+    _DatatypeProperty(
+        "answerCount",
+        "answer count",
+        "The number of undeleted answers in the source snapshot, not necessarily the number exported.",
+        "Question",
+        XSD.integer,
+    ),
+    _DatatypeProperty(
+        "commentCount",
+        "comment count",
+        "The source comment count, useful for checking export coverage.",
+        "Post",
+        XSD.integer,
+    ),
+    _DatatypeProperty("viewCount", "view count", "How often a question was viewed.", "Question", XSD.integer),
+    _DatatypeProperty(
+        "upvoteCount", "upvote count", "The aggregated number of upvotes on a post.", "Post", XSD.integer
+    ),
+    _DatatypeProperty(
+        "downvoteCount", "downvote count", "The aggregated number of downvotes on a post.", "Post", XSD.integer
+    ),
+    _DatatypeProperty(
+        "favoriteCount",
+        "favorite count",
+        "The historical favorite count; not a count of current Saves.",
+        "Question",
+        XSD.integer,
+    ),
+    _DatatypeProperty("tagName", "tag name", "The name of a tag.", "Tag", XSD.string),
+    _DatatypeProperty(
+        "tagId", "tag ID", "The original Tags.Id for tracing a tag to the source snapshot.", "Tag", XSD.integer
+    ),
+    _DatatypeProperty(
+        "tagQuestionCount",
+        "tag question count",
+        "Tags.Count: the number of questions using this tag in the source snapshot.",
+        "Tag",
+        XSD.integer,
+    ),
+    _DatatypeProperty(
+        "sourcePostId",
+        "source post ID",
+        "The original Posts.Id, including for tag wikis and excerpts represented by tag-based IRIs.",
+        "Post",
+        XSD.integer,
+    ),
+    _DatatypeProperty(
+        "postTypeId",
+        "post type ID",
+        "The source post-type code, retaining distinctions for post types without a dedicated class.",
+        "Post",
+        XSD.integer,
+    ),
+    _DatatypeProperty(
+        "creationDate", "creation date", "When the post or comment was created.", "Content", XSD.dateTime
+    ),
+    _DatatypeProperty(
+        "lastEditDate",
+        "last edit date",
+        "When the post was last edited; does not by itself establish technical freshness.",
+        "Post",
+        XSD.dateTime,
+    ),
+    _DatatypeProperty(
+        "lastActivityDate",
+        "last activity date",
+        "When the post last had activity; does not by itself establish technical freshness.",
+        "Post",
+        XSD.dateTime,
+    ),
+    _DatatypeProperty(
+        "closedDate",
+        "closed date",
+        "When a question was closed; this does not encode the closure reason or history.",
+        "Question",
+        XSD.dateTime,
+    ),
+    _DatatypeProperty(
+        "communityOwnedDate",
+        "community owned date",
+        "When a post became community wiki; not a quality rating.",
+        "Post",
+        XSD.dateTime,
+    ),
+    _DatatypeProperty(
+        "contentLicense",
+        "content license",
+        "The source content license for a post or comment, including tag documentation.",
+        "Content",
+        XSD.string,
+    ),
+)
+
+_OBJECT_PROPERTIES: tuple[_ObjectProperty, ...] = (
+    _ObjectProperty(
+        "acceptedAnswer",
+        "accepted answer",
+        "Links a question to its accepted answer.",
+        "QuestionWithAcceptedAnswer",
+        "AcceptedAnswer",
+        "acceptedAnswerOf",
+    ),
+    _ObjectProperty(
+        "acceptedAnswerOf",
+        "accepted answer of",
+        "Links an accepted answer to the question accepting it.",
+        "AcceptedAnswer",
+        "QuestionWithAcceptedAnswer",
+    ),
+    _ObjectProperty(
+        "hasAnswer",
+        "has answer",
+        "Links a question to one of its answers.",
+        "AnsweredQuestion",
+        "Answer",
+        "answersQuestion",
+    ),
+    _ObjectProperty(
+        "answersQuestion",
+        "answers question",
+        "Links an answer to the question it answers.",
+        "Answer",
+        "AnsweredQuestion",
+    ),
+    _ObjectProperty("taggedWith", "tagged with", "Links a question to a tag.", "Question", "Tag", "tagsQuestion"),
+    _ObjectProperty("tagsQuestion", "tags question", "Links a tag to a question using it.", "Tag", "Question"),
+    _ObjectProperty(
+        "hasTagWiki", "has tag wiki", "Links a tag to its documentation post.", "Tag", "TagWiki", "tagWikiOf"
+    ),
+    _ObjectProperty("tagWikiOf", "tag wiki of", "Links a documentation post to its tag.", "TagWiki", "Tag"),
+    _ObjectProperty(
+        "hasTagExcerpt",
+        "has tag excerpt",
+        "Links a tag to its short description post.",
+        "Tag",
+        "TagExcerpt",
+        "tagExcerptOf",
+    ),
+    _ObjectProperty(
+        "tagExcerptOf", "tag excerpt of", "Links a short description post to its tag.", "TagExcerpt", "Tag"
+    ),
+    _ObjectProperty("hasComment", "has comment", "Links a post to a comment on it.", "Post", "Comment", "commentOn"),
+    _ObjectProperty("commentOn", "comment on", "Links a comment to the post it comments on.", "Comment", "Post"),
+    _ObjectProperty(
+        "linkedTo",
+        "linked to",
+        "Directed PostLinks relation of type 1: the source contains a link to the target. A reverse linkedTo edge requires its own source link.",
+        "Question",
+        "Question",
+    ),
+    _ObjectProperty(
+        "duplicateOf",
+        "duplicate of",
+        "Directed PostLinks relation of type 3: the source question is marked as a duplicate of the target.",
+        "Question",
+        "Question",
+    ),
+    _ObjectProperty(
+        "possibleBetterAnswer",
+        "possible better answer",
+        "A derived candidate that may be preferable to the accepted answer; requires an external assessment and is not proof of correctness.",
+        "Question",
+        "Answer",
+    ),
+)
+
+
+def new_schema_graph(schema_namespace: str) -> Graph:
+    """Create a graph containing only ontology definitions."""
+    graph = Graph()
+    add_schema_definitions(graph, schema_namespace)
+    return graph
+
+
+def add_schema_definitions(graph: Graph, schema_namespace: str) -> None:
+    """
+    Add the schema using the caller's existing absolute namespace.
+
+    The namespace must end with '/', '#', or ':'. This function adds no content
+    instances and performs no SQL access or record-to-triple transformation.
+    Counts and missing values must be interpreted by the separate exporter;
+    OWL/RDFS do not validate counts or infer unanswered status from absent
+    edges.
+    """
+    if not urlsplit(schema_namespace).scheme or not schema_namespace.endswith(("/", "#", ":")):
+        raise ValueError("schema_namespace must be an absolute namespace ending with '/', '#', or ':'")
+
+    graph.bind("so", schema_namespace)
+    graph.bind("rdf", RDF)
+    graph.bind("rdfs", RDFS)
+    graph.bind("xsd", XSD)
+    graph.bind("owl", OWL)
+
+    def term(name: str) -> URIRef:
+        """Build a schema term IRI in the caller's namespace."""
+        return URIRef(f"{schema_namespace}{name}")
+
+    for class_definition in _CLASSES:
+        subject = term(class_definition.name)
+        graph.add((subject, RDF.type, OWL.Class))
+        graph.add((subject, RDFS.label, Literal(class_definition.label, lang="en")))
+        graph.add((subject, RDFS.comment, Literal(class_definition.description, lang="en")))
+        if class_definition.parent is not None:
+            graph.add((subject, RDFS.subClassOf, term(class_definition.parent)))
+
+    for datatype_property in _DATATYPE_PROPERTIES:
+        subject = term(datatype_property.name)
+        graph.add((subject, RDF.type, OWL.DatatypeProperty))
+        graph.add((subject, RDFS.label, Literal(datatype_property.label, lang="en")))
+        graph.add((subject, RDFS.comment, Literal(datatype_property.description, lang="en")))
+        graph.add((subject, RDFS.domain, term(datatype_property.domain)))
+        graph.add((subject, RDFS.range, datatype_property.datatype))
+
+    for object_property in _OBJECT_PROPERTIES:
+        subject = term(object_property.name)
+        graph.add((subject, RDF.type, OWL.ObjectProperty))
+        graph.add((subject, RDFS.label, Literal(object_property.label, lang="en")))
+        graph.add((subject, RDFS.comment, Literal(object_property.description, lang="en")))
+        graph.add((subject, RDFS.domain, term(object_property.domain)))
+        graph.add((subject, RDFS.range, term(object_property.range)))
+        if object_property.inverse is not None:
+            graph.add((subject, OWL.inverseOf, term(object_property.inverse)))
+
+    graph.add((term("AnsweredQuestion"), OWL.disjointWith, term("UnansweredQuestion")))
+    graph.add((term("QuestionWithAcceptedAnswer"), OWL.disjointWith, term("QuestionWithoutAcceptedAnswer")))
